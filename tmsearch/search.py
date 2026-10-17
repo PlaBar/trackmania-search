@@ -11,6 +11,9 @@ Pruning (all relative to the reference trajectory):
   * pace:       more than max_behind_ms behind the reference ghost
   * checkpoint: passed a checkpoint's position on the reference without registering it
 Near-duplicate states (same position cell, heading bin and speed bin) are merged, keeping the best.
+
+TICK_MS, ACTIONS, verify and to_tmi_script now live in utils.py; they are re-exported here so
+`from .search import verify` (astar.py, local.py, play.py, record.py, tests) keeps working.
 """
 
 from __future__ import annotations
@@ -23,23 +26,15 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numpy as np
+
 from .bridge import Action, Bridge, Node
 from .reference import Projection, Reference
 from .replay import read_replay
 from .reproduce import input_timeline
+from .utils import ACTIONS, TICK_MS, to_tmi_script, verify
 
-TICK_MS = 10
-
-ACTIONS = {
-    "G": Action(up=True),
-    "GL": Action(up=True, left=True),
-    "GR": Action(up=True, right=True),
-    "-": Action(),
-    "L": Action(left=True),
-    "R": Action(right=True),
-    "BL": Action(down=True, left=True),
-    "BR": Action(down=True, right=True),
-}
+__all__ = ["ACTIONS", "TICK_MS", "BeamSearch", "Config", "Result", "SNode", "to_tmi_script", "verify"]
 
 
 @dataclass
@@ -95,7 +90,7 @@ class BeamSearch:
         proj = self.ref.project(node.pos, node.vel, hint)
         look = self.cfg.lookahead_s
         s_look = proj.s + max(proj.along, 0.0) * look
-        t_ref_look = float(_interp(s_look, self.ref.s, self.ref.t))
+        t_ref_look = float(np.interp(s_look, self.ref.s, self.ref.t))
         score = t_ref_look - (node.race_time + look * 1000.0)   # ms ahead of the ghost (projected)
         return proj, score
 
@@ -248,46 +243,6 @@ class BeamSearch:
             "config": vars(self.cfg) | {"actions": list(self.cfg.actions)},
             "lead_ahead_ms": ahead_log,
         }
-
-
-def _interp(x, xs, ys):
-    import numpy as np
-    return np.interp(x, xs, ys)
-
-
-# -- input export ---------------------------------------------------------------------------------
-def to_tmi_script(inputs: list[tuple[int, Action]], offset_ms: int) -> str:
-    """TMInterface script. An action applied from race time T corresponds to an input event at T + offset."""
-    lines = []
-    held = {"up": False, "down": False, "left": False, "right": False}
-    t = 0
-    for n, a in inputs:
-        want = {"up": a.up, "down": a.down, "left": a.left, "right": a.right}
-        for key in ("up", "down", "left", "right"):
-            if want[key] != held[key]:
-                lines.append(f"{(t + offset_ms) / 1000:.2f} {'press' if want[key] else 'rel'} {key}")
-                held[key] = want[key]
-        t += n * TICK_MS
-    return "\n".join(lines) + "\n"
-
-
-def verify(bridge: Bridge, inputs: list[tuple[int, Action]], root_sid: int | None = None) -> int:
-    """Replay an input sequence from the race start and return the finish time (-1 if none).
-
-    With root_sid (a kept race-start state) the race is not restarted."""
-    sid = root_sid if root_sid is not None else bridge.wait_start(restart=True).sid
-    used = []
-    finish = -1
-    for n, a in inputs:
-        node = bridge.expand(sid, a, n)
-        if sid != root_sid:
-            used.append(sid)
-        sid = node.sid
-        if node.finished:
-            finish = node.finish_time
-            break
-    bridge.free(used + [sid])
-    return finish
 
 
 def main() -> None:
