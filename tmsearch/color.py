@@ -8,22 +8,27 @@ Colours are hex strings (what matplotlib wants). Pillow in video.py wants RGB tu
 
 from __future__ import annotations
 
-SURFACE = "#071A2C"   # ink, the background
-NAVY = "#0B3256"
+SURFACE = "#071A2C"  
+NAVY_HEX = "#0B3256"    
 TEXT = "#F1FFF6"
 MUTED = "#8DA2B5"
 GRID = "#1A3550"
-SERIES = "#6EFAA0"    # TM mint: the AI / a single data series
+SERIES = "#6EFAA0"    
 GOLD = "#E2BA12"
-AHEAD = "#3AA0FF"     # blue split when ahead of the PB ghost
-BEHIND = "#FF5A5A"
+AHEAD_HEX = "#3AA0FF"  
+BEHIND_HEX = "#FF5A5A"
+REF = MUTED 
 
-# Aliases for the names the existing files already use.
-REF = MUTED           # the PB / reference line in charts
-INK = SURFACE
-MINT = SERIES
-GHOST = TEXT          # my PB ghost in the video
-AUTHOR = SERIES       # author medal colour in the video
+BG = rgb(SURFACE)       
+NAVY = rgb(NAVY_HEX)        
+ACCENT = rgb(SERIES) 
+GHOST = rgb(TEXT)        
+WHITE = rgb(TEXT)        
+AUTHOR = rgb(SERIES)       
+AHEAD = rgb(AHEAD_HEX)     
+BEHIND = rgb(BEHIND_HEX)   
+GOLD_RGB = rgb(GOLD)     
+MUTED_RGB = rgb(MUTED) 
 
 
 def rgb(hex_str: str) -> tuple[int, int, int]:
