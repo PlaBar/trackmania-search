@@ -68,6 +68,20 @@ class Action:
         return Action(up="G" in label, down="B" in label, left="L" in label, right="R" in label)
 
 
+class _Labels(dict):
+    """Action labels (see Action.label) -> Action; any label not cached is parsed (e.g. analog 'GS+12000')."""
+
+    def __missing__(self, label: str) -> Action:
+        action = Action.from_label(label)
+        self[label] = action
+        return action
+
+
+# Moved here from analyze.py so that local.py, play.py and record.py no longer import matplotlib
+# just to parse labels. analyze.py re-exports it, so `from .analyze import LABELS` still works.
+LABELS = _Labels()
+
+
 @dataclass
 class Node:
     """Car state reported by the plugin after a step. `sid` is the plugin-side save state id."""
@@ -242,8 +256,6 @@ class Bridge:
 
     def next_event(self):
         """Next streamed event: ('frame', race_time, display_speed, bgra array) or ('finish', race_time)."""
-        import numpy as np
-
         msg = self._recv_int()
         if msg == S_TICK_FRAME:
             return self._read_frame_payload()
