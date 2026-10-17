@@ -6,7 +6,7 @@ card with the result and the time-gain chart.
 """
 
 from __future__ import annotations
-
+from .color import ACCENT, AHEAD, AUTHOR, BEHIND, BG, GHOST, NAVY, WHITE, GOLD_RGB as GOLD, MUTED_RGB as MUTED
 import argparse
 import json
 from dataclasses import dataclass
@@ -21,17 +21,6 @@ from .reference import Reference
 W, H = 1920, 1080
 FPS = 60
 FONT_DIR = Path("C:/Windows/Fonts")
-# Trackmania 2020 palette (from trackmania.com), shared with the deck and the charts.
-BG = (7, 26, 44)              # ink #071A2C
-NAVY = (11, 50, 86)           # TM navy #0B3256
-ACCENT = (110, 250, 160)      # TM mint #6EFAA0: the AI
-GHOST = (241, 255, 246)       # my PB ghost
-GOLD = (226, 186, 18)
-AUTHOR = (110, 250, 160)
-AHEAD = (58, 160, 255)        # blue split when ahead (#3AA0FF)
-BEHIND = (255, 90, 90)
-MUTED = (141, 162, 181)
-WHITE = (241, 255, 246)
 
 _fonts: dict = {}
 
