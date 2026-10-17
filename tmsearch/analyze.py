@@ -3,6 +3,7 @@
 Produces a top-down map of both lines and the time gained/lost along the track.
 """
 
+from .bridge import Action, Bridge, LABELS
 from __future__ import annotations
 
 import argparse
@@ -27,7 +28,7 @@ class _Labels(dict):
         return action
 
 
-LABELS = _Labels()
+
 
 
 def record(bridge: Bridge, inputs: list[tuple[int, str]]) -> np.ndarray:
