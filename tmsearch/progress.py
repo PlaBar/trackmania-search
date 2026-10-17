@@ -12,20 +12,11 @@ import csv
 import json
 import re
 from pathlib import Path
-
+from .color import SURFACE, TEXT, MUTED, GRID, SERIES, REF, GOLD
 import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
-
-# Trackmania 2020 palette (from trackmania.com), shared with the deck and the video.
-SURFACE = "#071A2C"
-TEXT = "#F1FFF6"
-MUTED = "#8DA2B5"
-GRID = "#1A3550"
-SERIES = "#6EFAA0"     # single series: best time (TM mint)
-REF = "#8DA2B5"
-GOLD = "#E2BA12"
 
 
 def stage_beam(path: Path, pb: int) -> tuple[list[tuple[float, int]], float]:
