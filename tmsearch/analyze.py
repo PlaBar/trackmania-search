@@ -19,18 +19,6 @@ import numpy as np  # noqa: E402
 from .bridge import Action, Bridge  # noqa: E402
 from .reference import Reference  # noqa: E402
 
-class _Labels(dict):
-    """Action labels (see Action.label) -> Action; any label not cached is parsed (e.g. analog 'GS+12000')."""
-
-    def __missing__(self, label: str) -> Action:
-        action = Action.from_label(label)
-        self[label] = action
-        return action
-
-
-
-
-
 def record(bridge: Bridge, inputs: list[tuple[int, str]]) -> np.ndarray:
     root = bridge.wait_start(restart=True)
     sid = root.sid
